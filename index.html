@@ -39,31 +39,78 @@
         .result {
             margin-top: 10px;
         }
+
+        .cost {
+            text-align: center;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Token Counter</h1>
         <textarea id="text-input" placeholder="Enter your text here"></textarea>
+        <select id="model-select">
+            <option value="Ada">Ada</option>
+            <option value="Babbage">Babbage</option>
+            <option value="Curie">Curie</option>
+            <option value="Davinci">Davinci</option>
+        </select>
+        <select id="currency-select">
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+        </select>
         <button id="count-btn" class="btn">Count Tokens</button>
         <div id="result" class="result"></div>
+        <div id="cost" class="result"></div>
     </div>
 
     <script>
         document.getElementById("count-btn").addEventListener("click", function() {
             var text = document.getElementById("text-input").value;
-            var tokenCount = countTokens(text);
+            var model = document.getElementById("model-select").value;
+            var currency = document.getElementById("currency-select").value;
+            var result = countTokens(text);
+            var tokenCount = result.tokenCount;
+            var cost = calculateCost(tokenCount, model, currency);
             displayResult(tokenCount);
+            displayCost(cost, tokenCount, model, currency);
         });
 
         function countTokens(text) {
             var tokens = text.trim().split(/\s+/);
-            return tokens.length;
+            return {
+                tokenCount: tokens.length
+            };
+        }
+
+        function calculateCost(tokenCount, model, currency) {
+            var pricePerToken = {
+                "Ada": 0.0004,      // Price per token for Ada
+                "Babbage": 0.0005,   // Price per token for Babbage
+                "Curie": 0.0020,     // Price per token for Curie
+                "Davinci": 0.0200      // Price per token for Davinci
+            };
+
+            // Conversion du prix en dollars en euros (supposons un taux de change de 1 USD = 0.85 EUR)
+            var exchangeRate = 0.85;
+
+            if (currency === "EUR") {
+                var costInDollars = tokenCount * pricePerToken[model];
+                return (costInDollars * exchangeRate).toFixed(4) + " EUR";
+            } else {
+                return (tokenCount * pricePerToken[model]).toFixed(4) + " USD";
+            }
         }
 
         function displayResult(tokenCount) {
             var resultContainer = document.getElementById("result");
             resultContainer.innerHTML = "Number of tokens: " + tokenCount;
+        }
+
+        function displayCost(cost, tokenCount, model, currency) {
+            var costContainer = document.getElementById("cost");
+            costContainer.innerHTML = "Cost for " + tokenCount + " tokens in " + model + ": " + cost;
         }
     </script>
 </body>
